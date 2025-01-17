@@ -28,7 +28,9 @@ _Below is an example of how you can instruct your audience on installing and set
    ```sh
    npm install
    ```
-3. npm start
+3.  ```sh
+   npm start
+   ``` 
 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
