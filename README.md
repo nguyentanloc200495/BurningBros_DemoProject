@@ -7,6 +7,7 @@ Infinite Scrolling and Searchable Product List  (React.js with TypeScript)
 2. Using Material UI [https://mui.com/material-ui/getting-started/] for design layout
 3. Using Axios call API
 4. Apply Redux toolkit for management data
+5. Coding Convention by ESlint
 
 <!-- GETTING STARTED -->
 ## Getting Started
