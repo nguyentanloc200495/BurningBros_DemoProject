@@ -17,7 +17,7 @@ import {
   InputAdornment,
   Stack,
   TextField,
-  Typography
+  Typography,
 } from '@mui/material';
 import { ProjectType } from '_types/product';
 import { getProductList, searchProduct } from 'redux/slices/product';
@@ -41,13 +41,24 @@ export default function ProjectList() {
   const [products, setProducts] = useState<ProjectType[]>([]);
   const [skip, setSkip] = useState(0);
 
-  const debouncedGetProjects = debounce((value: string) => {
+  const debouncedSearchProjects = debounce((value: string) => {
+    if (value) {
+      dispatch(
+        searchProduct({
+          searchKey: value,
+        })
+      );
+    }
+  }, 500);
+
+  const debouncedGetProjects = debounce((value) => {
     dispatch(
-      searchProduct({
-        searchKey: value,
+      getProductList({
+        limit: 20,
+        skip: value + 20,
       })
     );
-  }, 500);
+  }, 200);
 
   useEffect(() => {
     dispatch(
@@ -56,17 +67,12 @@ export default function ProjectList() {
         skip: 0,
       })
     );
-  }, [dispatch])
+  }, [dispatch]);
 
   const handleScroll = useCallback(() => {
     const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
     if (scrollTop + clientHeight >= scrollHeight - 5) {
-      dispatch(
-        getProductList({
-          limit: 20,
-          skip: skip + 20,
-        })
-      )
+      debouncedGetProjects(skip);
     }
   }, [skip]);
 
@@ -74,23 +80,23 @@ export default function ProjectList() {
     window.addEventListener('scroll', handleScroll);
 
     return () => {
-      window.removeEventListener('scroll', handleScroll)
-    }
-    // eslint-disable-next-line
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, [handleScroll]);
 
   useEffect(() => {
     if (productList && productList?.products.length > 0) {
-      setProducts(products.length > 0 ? [...products, ...productList.products] : productList.products);
+      setProducts(
+        products.length > 0 ? [...products, ...productList.products] : productList.products
+      );
       setSkip(productList?.skip);
     }
-  }, [productList])
+  }, [productList]);
 
   useEffect(() => {
-    debouncedGetProjects(searchText);
+    debouncedSearchProjects(searchText);
     setProducts([]);
-  }, [searchText])
-
+  }, [searchText]);
 
   const onSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     setsearchText(event.target.value);
@@ -123,8 +129,8 @@ export default function ProjectList() {
         />
         <Divider />
         <Scrollbar>
-          <Grid container sx={{ backgroundColor: '#F5F5F5', padding: '50px' }} spacing={2} >
-            {products?.map((item, index) =>
+          <Grid container sx={{ backgroundColor: '#F5F5F5', padding: '50px' }} spacing={2}>
+            {products?.map((item, index) => (
               <Grid key={`${index}-${item.id}`} item xs={12} sm={6} lg={4}>
                 <Card sx={{ display: 'flex', justifyContent: 'space-between', height: '100%' }}>
                   <Box sx={{ display: 'flex', flexDirection: 'column' }}>
@@ -148,11 +154,8 @@ export default function ProjectList() {
                     alt={item.title}
                   />
                 </Card>
-
               </Grid>
-
-            )
-            }
+            ))}
           </Grid>
         </Scrollbar>
         {isLoading && <LoadingScreen />}
